@@ -64,7 +64,7 @@ def error_relative_to_center(
     x_center = height / 2
     y_center = width / 2
     return [
-        [(center[0] - x_center)/x_center, (y_center - center[1], center[2])/y_center] for center in centers
+        [(0.5*center[0] - 0.5*x_center, 0.5*y_center - 0.5*center[1], center[2])] for center in centers
     ]
 
 
@@ -140,3 +140,18 @@ def process_frame(frame, PIDHorizontal, PIDVertical):
         powX = PIDVertical.update(meanX)
 
     return (powX, powY)
+
+def process_center_avg(frame):
+    apriltags = get_tags(frame)
+    if len(apriltags) > 0:
+        centers = get_positions(apriltags)
+        relative_centers = error_relative_to_center(centers, frame.shape[0], frame.shape[1])     
+        x = [center[0][1] for center in relative_centers]
+        y = [center[0][0] for center in relative_centers]
+
+
+        meanY = np.mean(y)
+        meanX = np.mean(x)
+
+
+    return (meanX, meanY)
