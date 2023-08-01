@@ -30,9 +30,14 @@ def get_tags(img) -> list:
     Returns:
         list: the list of tags found in the image
     """
+    if type(img) is not np.ndarray:
+        raise TypeError("img parameter is of incorrect type.")
+
     tags = at_detector.detect(img, True, camera_params=camera_params, tag_size=True)
+
     if type(tags) is not None:
         print("tag found!")
+    
     return tags
 
 
@@ -69,8 +74,12 @@ def error_relative_to_center(
 
 
 def output_from_tags(errors, horizontal_pid: PID, vertical_pid: PID) -> tuple[list[float], list[float]]:
-    horizontal_output = [horizontal_pid.update(error[0]) for error in errors]
-    vertical_output = [vertical_pid.update(error[1]) for error in errors]
+    if len(errors) == 0:
+        horizontal_output = 0
+        vertical_output = 0
+    else:
+        horizontal_output = [horizontal_pid.update(error[0]) for error in errors]
+        vertical_output = [vertical_pid.update(error[1]) for error in errors]
     return (horizontal_output, vertical_output)
 
 def draw_outputs(img, outputs: tuple[list[float], list[float]], tags):
