@@ -1,0 +1,10 @@
+opencv-python-headless
+numpy
+matplotlib
+scikit-learn
+scikit-image
+pycairo 
+PyGObject
+pymavlink
+gstreamer-player
+dt_apriltags
