@@ -14,8 +14,8 @@ print("Main started!")
 # Create the video object
 video = Video()
 # Create the PID object
-PIDVertical = PID(0.09,0,0,100)
-PIDHorizontal = PID(0.05,0,0,100)
+PIDVertical = PID(1,0,0,100)
+PIDHorizontal = PID(1,0,0,100)
 # Create the mavlink connection
 mav_comn = mavutil.mavlink_connection("udpin:0.0.0.0:14550")
 # Create the BlueROV object
