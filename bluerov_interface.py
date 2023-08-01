@@ -9,8 +9,9 @@ class BlueROV:
         self.mav_connection = mav_connection
         self.mav_connection.wait_heartbeat()
         self.mav_connection.set_mode("MANUAL")
-        self.mav_connection.arducopter_arm()
-        self.mav_connection.motors_armed_wait()
+        # self.mav_connection.arducopter_arm()
+        # self.mav_connection.motors_armed_wait()
+        print("armed!")
         self.state = "armed"
 
     def disarm(self):

@@ -9,6 +9,8 @@ from pymavlink import mavutil
 # TODO: import your processing functions
 from april_tag import *
 
+print("Main started!")
+
 # Create the video object
 video = Video()
 # Create the PID object
@@ -31,7 +33,7 @@ def _get_frame():
     global frame
     global new_frame
     global vertical_power
-    global horizontal_power
+    global lateral_power
     
     while not video.frame_available():
         print("Waiting for frame...")
@@ -41,20 +43,28 @@ def _get_frame():
         while True:
             if video.frame_available():
                 frame = video.frame()
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 # TODO: Add frame processing here
                 if type(frame) == np.ndarray:
-                    vertical_power, horizontal_power = process_frame(frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal)
+                    try:
+                        vertical_power, lateral_power = process_frame(frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal)
+                        print(f"{vertical_power = }")
+                        print(f"{lateral_power = }")
+                    except Exception as e:
+                        print(f"caught: {e}")
                 
                 # TODO: set vertical_power and lateral_power here
-                _send_rc()
                 print(frame.shape)
     except KeyboardInterrupt:
         return
 
 
-def _send_rc():
-    bluerov.set_vertical_power(vertical_power)
-    bluerov.set_lateral_power(lateral_power)
+# def _send_rc():
+#     while True:
+#         # bluerov.arm()
+#         bluerov.set_vertical_power(vertical_power)
+#         bluerov.set_lateral_power(lateral_power)
+#         sleep(0.5)
 
 
 def main():
@@ -62,9 +72,9 @@ def main():
     video_thread = Thread(target=_get_frame)
     video_thread.start()
 
-    # Start the RC thread
-    rc_thread = Thread(target=_send_rc)
-    rc_thread.start()
+    # # Start the RC thread
+    # rc_thread = Thread(target=_send_rc)
+    # rc_thread.start()
 
     # Main loop
     try:
@@ -72,7 +82,7 @@ def main():
             mav_comn.wait_heartbeat()
     except KeyboardInterrupt:
         video_thread.join()
-        rc_thread.join()
+        # rc_thread.join()
         bluerov.disarm()
         print("Exiting...")
 

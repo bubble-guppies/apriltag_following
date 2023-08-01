@@ -3,6 +3,24 @@ import numpy as np
 import cv2
 from pid import *
 
+cameraMatrix = np.array([1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3, 3))
+
+camera_params = (
+    cameraMatrix[0, 0],
+    cameraMatrix[1, 1],
+    cameraMatrix[0, 2],
+    cameraMatrix[1, 2],
+)
+at_detector = Detector(
+    families="tag36h11",
+    nthreads=1,
+    quad_decimate=1.0,
+    quad_sigma=0.0,
+    refine_edges=1,
+    decode_sharpening=0.25,
+    debug=0,
+)
+
 def get_tags(img) -> list:
     """Gets a list of tags from an image.
 
@@ -12,25 +30,9 @@ def get_tags(img) -> list:
     Returns:
         list: the list of tags found in the image
     """
-    cameraMatrix = np.array([1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3, 3))
-
-    camera_params = (
-        cameraMatrix[0, 0],
-        cameraMatrix[1, 1],
-        cameraMatrix[0, 2],
-        cameraMatrix[1, 2],
-    )
-    at_detector = Detector(
-        families="tag36h11",
-        nthreads=1,
-        quad_decimate=1.0,
-        quad_sigma=0.0,
-        refine_edges=1,
-        decode_sharpening=0.25,
-        debug=0,
-    )
-
     tags = at_detector.detect(img, True, camera_params=camera_params, tag_size=True)
+    if type(tags) is not None:
+        print("tag found!")
     return tags
 
 
@@ -120,15 +122,21 @@ def render_tags(tags, img):
 
     return img
 
-def process_frame(temp, PIDHorizontal, PIDVertical):
-    apriltags = get_tags(temp)
-    centers = get_positions(apriltags)
-    relative_centers = error_relative_to_center(centers, temp.shape[0], temp.shape[1])
-    
+def process_frame(frame, PIDHorizontal, PIDVertical):
     powY = 0
     powX = 0
-    for center in relative_centers:
-        if center[2] == 0:
-            powY= PIDHorizontal.update(center[0])
-            powX = PIDVertical.update(center[1])
+    apriltags = get_tags(frame)
+    if len(apriltags) > 0:
+        centers = get_positions(apriltags)
+        relative_centers = error_relative_to_center(centers, frame.shape[0], frame.shape[1])
+        cv2.imwrite("testframe.jpg", frame)
+        
+        x = [center[1] for center in relative_centers]
+        y = [center[0] for center in relative_centers]
+        meanY = np.mean(y)
+        meanX = np.mean(x)
+
+        powY = PIDHorizontal.update(meanY)
+        powX = PIDVertical.update(meanX)
+
     return (powX, powY)
