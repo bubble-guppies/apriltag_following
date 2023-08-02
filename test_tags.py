@@ -26,7 +26,7 @@ class TestAprilsTags(unittest.TestCase):
     def test_correct_center_multiple_tags(self):
         img = cv2.imread('test_multi.jpg', cv2.IMREAD_GRAYSCALE)
         self.assertAlmostEquals(april_tag.process_center_avg(img)[0], 22.174)
-        self.assertAlmostEquals(april_tag.process_center_avg(img)[0], 5.336)
+        self.assertAlmostEquals(april_tag.process_center_avg(img)[1], 5.336)
 
 
     def test_position(self):

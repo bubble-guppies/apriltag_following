@@ -70,8 +70,9 @@ def error_relative_to_center(
     """
     x_center = height / 2
     y_center = width / 2
+
     return [
-        [0.5 * center[0] - 0.5 * x_center, 0.5 * y_center - 0.5 * center[1], center[2]]
+        [(center[0] - x_center)/height, (y_center - center[1])/width, center[2]]
         for center in centers
     ]
 
