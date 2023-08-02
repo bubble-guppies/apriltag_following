@@ -134,6 +134,7 @@ def process_center_avg(frame: np.ndarray) -> tuple[float, float]:
 
 def get_heading_to_tag(frame):
     apriltags = get_tags(frame)
+    print(apriltags)
     rot = apriltags[0].pose_R
     r = rotation_matrix_to_euler_angles(rot)
     return r
@@ -160,7 +161,7 @@ def rotation_matrix_to_euler_angles(rot_matrix):
     roll_deg = np.degrees(roll)
     pitch_deg = np.degrees(pitch)
     yaw_deg = np.degrees(yaw)
-
+    print(f"{(180/np.pi)*roll_deg, (180/np.pi)*pitch_deg, (180/np.pi)*yaw_deg}")
     return yaw_deg
 
 
