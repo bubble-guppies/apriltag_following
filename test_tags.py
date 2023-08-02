@@ -6,9 +6,9 @@ class TestAprilsTags(unittest.TestCase):
 
     # alex
     def test_get_tags(self):
-        # can only get two for now, will add more in class
-        self.assertRaises(TypeError, lambda: april_tag.get_tags(None)) # check if type error is raised 
-        self.assertEqual(april_tag.get_tags('no_tag.png'), None) # check if using an image with no tags returns the right stuff
+        self.assertRaises(TypeError, lambda: april_tag.get_tags(None))
+        self.assertEqual(april_tag.get_tags(cv2.cvtColor(cv2.imread('no_tag.png'), cv2.COLOR_BGR2GRAY)), []) 
+        self.assertNotEqual(april_tag.get_tags(cv2.cvtColor(cv2.imread('test_multi.jpg'), cv2.COLOR_BGR2GRAY)), [])
     
     #CHARLOTTE
     def test_PID(self):
