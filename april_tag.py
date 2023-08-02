@@ -2,9 +2,11 @@ from dt_apriltags import Detector
 import numpy as np
 import cv2
 from pid import *
+import eigency
+
 
 # Create an April Tags detector object
-cameraMatrix = np.array([1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3, 3))
+cameraMatrix = np.array([ 353.571428571, 0, 320, 0, 353.571428571, 180, 0, 0, 1]).reshape((3,3))
 
 camera_params = (
     cameraMatrix[0, 0],
@@ -35,7 +37,7 @@ def get_tags(img) -> list:
     if type(img) is not np.ndarray:
         raise TypeError("img parameter is of incorrect type.")
 
-    tags = at_detector.detect(img, True, camera_params=camera_params, tag_size=True)
+    tags = at_detector.detect(img, True, camera_params=camera_params, tag_size=0.1)
 
     if len(tags) > 0:
         print("tag(s) found!")
@@ -128,3 +130,43 @@ def process_center_avg(frame: np.ndarray) -> tuple[float, float]:
         meanX = np.mean(x)
 
     return (meanX, meanY)
+
+
+def get_heading_to_tag(frame):
+    apriltags = get_tags(frame)
+    rot = apriltags[0].pose_R
+    r = rotation_matrix_to_euler_angles(rot)
+    return r
+
+
+def rotation_matrix_to_euler_angles(rot_matrix):
+    # Ensure the input is a 3x3 rotation matrix
+    if rot_matrix.shape != (3, 3):
+        raise ValueError("Input matrix must be a 3x3 rotation matrix.")
+
+    # Calculate pitch (around y-axis) and yaw (around z-axis)
+    pitch = np.arcsin(-rot_matrix[2, 0])
+    yaw = np.arctan2(rot_matrix[1, 0], rot_matrix[0, 0])
+
+    # Calculate roll (around x-axis)
+    cos_pitch = np.cos(pitch)
+    if np.abs(cos_pitch) > 1e-6:
+        roll = np.arctan2(rot_matrix[2, 1] / cos_pitch, rot_matrix[2, 2] / cos_pitch)
+    else:
+        # Gimbal lock case: cos(pitch) is close to zero
+        roll = 0.0
+
+    # Convert angles from radians to degrees
+    roll_deg = np.degrees(roll)
+    pitch_deg = np.degrees(pitch)
+    yaw_deg = np.degrees(yaw)
+
+    return yaw_deg
+
+
+def get_distance_to_tag(frame):
+    apriltags = get_tags(frame)
+    dist = [tag.pose_t[2] for tag in apriltags]
+    print(apriltags)
+    meanY = np.mean(dist)
+    return meanY

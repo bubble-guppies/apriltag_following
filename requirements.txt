@@ -8,3 +8,4 @@ PyGObject
 pymavlink
 gstreamer-player
 dt_apriltags
+eigen
