@@ -42,6 +42,7 @@ def _get_frame():
         while True:
             if video.frame_available():
                 frame = video.frame()
+                cv2.imwrite("camera_stream.jpg", frame)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 # TODO: Add frame processing here
                 if type(frame) == np.ndarray:
@@ -59,10 +60,13 @@ def _get_frame():
 
 
 def _send_rc():
+    # on first startup, set everything 0
+    bluerov.set_vertical_power(0)
+    bluerov.set_lateral_power(0)
     while True:
         bluerov.arm()
-        bluerov.set_vertical_power(vertical_power)
-        bluerov.set_lateral_power(lateral_power)
+        bluerov.set_vertical_power(int(vertical_power))
+        bluerov.set_lateral_power(int(lateral_power))
         sleep(0.2)
 
 
@@ -72,8 +76,8 @@ def main():
     video_thread.start()
 
     # # # Start the RC thread
-    # rc_thread = Thread(target=_send_rc)
-    # rc_thread.start()
+    rc_thread = Thread(target=_send_rc)
+    rc_thread.start()
 
     # Main loop
     try:
