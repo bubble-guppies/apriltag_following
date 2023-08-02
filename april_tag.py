@@ -77,26 +77,6 @@ def error_relative_to_center(
     ]
 
 
-def output_from_tags(
-    errors: list, horizontal_pid: PID, vertical_pid: PID
-) -> tuple[list[float], list[float]]:
-    """Given a list of errors and PID objects, returns the PID outputs
-
-    Args:
-        errors (list[list[float, float, tag_id]]): the list of error values
-        horizontal_pid (PID): the horizontal pid object, which corresponds to the first element of each error
-        vertical_pid (PID): the vertical PID object, which corresponds to the second element of each error
-
-    Returns:
-        tuple[list[float], list[float]]: the list of outputs. Should be the same length as errors.
-    """
-    if len(errors) == 0:
-        horizontal_output = 0
-        vertical_output = 0
-    else:
-        horizontal_output = [horizontal_pid.update(error[0]) for error in errors]
-        vertical_output = [vertical_pid.update(error[1]) for error in errors]
-    return (horizontal_output, vertical_output)
 
 
 def pid_from_frame(frame: np.ndarray, PIDHorizontal: PID, PIDVertical: PID):

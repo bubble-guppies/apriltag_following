@@ -10,9 +10,6 @@ class TestAprilsTags(unittest.TestCase):
         self.assertEqual(april_tag.get_tags(cv2.cvtColor(cv2.imread('no_tag.png'), cv2.COLOR_BGR2GRAY)), []) 
         self.assertNotEqual(april_tag.get_tags(cv2.cvtColor(cv2.imread('test_multi.jpg'), cv2.COLOR_BGR2GRAY)), [])
     
-    #CHARLOTTE
-    def test_PID(self):
-        self.assertEquals(april_tag.output_from_tags(), 0, 0)
 
     # idk
     def test_frames(self):
