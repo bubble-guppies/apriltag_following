@@ -71,9 +71,9 @@ def main():
     video_thread = Thread(target=_get_frame)
     video_thread.start()
 
-    # # Start the RC thread
-    rc_thread = Thread(target=_send_rc)
-    rc_thread.start()
+    # # # Start the RC thread
+    # rc_thread = Thread(target=_send_rc)
+    # rc_thread.start()
 
     # Main loop
     try:
@@ -81,7 +81,7 @@ def main():
             mav_comn.wait_heartbeat()
     except KeyboardInterrupt:
         video_thread.join()
-        rc_thread.join()
+        #rc_thread.join()
         bluerov.disarm()
         print("Exiting...")
 
