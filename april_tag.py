@@ -4,7 +4,7 @@ import cv2
 from pid import *
 
 # Create an April Tags detector object
-cameraMatrix = np.array([1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3, 3))
+cameraMatrix = np.array([ 353.571428571, 0, 320, 0, 353.571428571, 180, 0, 0, 1]).reshape((3,3))
 
 camera_params = (
     cameraMatrix[0, 0],
