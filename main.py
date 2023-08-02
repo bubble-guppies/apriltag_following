@@ -11,11 +11,11 @@ from april_tag import *
 
 print("Main started!")
 
-# Create the video object
+# Create the video objectE
 video = Video()
 # Create the PID object
-PIDVertical = PID(50,0,0,100)
-PIDHorizontal = PID(50,0,0,100)
+PIDVertical = PID(70, 0, -6, 100)
+PIDHorizontal = PID(50, 0, 0, 100)
 # Create the mavlink connection
 mav_comn = mavutil.mavlink_connection("udpin:0.0.0.0:14550")
 # Create the BlueROV object
@@ -33,7 +33,7 @@ def _get_frame():
     global frame
     global vertical_power
     global lateral_power
-    
+
     while not video.frame_available():
         print("Waiting for frame...")
         sleep(0.01)
@@ -42,20 +42,24 @@ def _get_frame():
         while True:
             if video.frame_available():
                 frame = video.frame()
-                cv2.imwrite("camera_stream.jpg", frame)
+                #cv2.imwrite("camera_stream.jpg", frame)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 # TODO: Add frame processing here
                 if type(frame) == np.ndarray:
                     try:
-                        vertical_power, lateral_power = pid_from_frame(frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal)
+                        vertical_power, lateral_power = pid_from_frame(
+                            frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal
+                        )
                         print(f"{vertical_power = }")
                         print(f"{lateral_power = }")
                     except Exception as e:
                         print(f"caught: {e}")
-                
+                        vertical_power = 0
+                        lateral_power = 0
+
                 # TODO: set vertical_power and lateral_power here
                 print(frame.shape)
-                # sleep(0.5)
+                sleep(0.1)
     except KeyboardInterrupt:
         return
 
@@ -64,11 +68,13 @@ def _send_rc():
     # on first startup, set everything 0
     bluerov.set_vertical_power(0)
     bluerov.set_lateral_power(0)
+
     while True:
         bluerov.arm()
+        mav_comn.set_mode(19)
         bluerov.set_vertical_power(int(vertical_power))
         bluerov.set_lateral_power(int(lateral_power))
-        sleep(0.2)
+        # sleep(0.2)
 
 
 def main():
@@ -76,9 +82,9 @@ def main():
     video_thread = Thread(target=_get_frame)
     video_thread.start()
 
-    # # # Start the RC thread
-    # rc_thread = Thread(target=_send_rc)
-    # rc_thread.start()
+    # # Start the RC thread
+    rc_thread = Thread(target=_send_rc)
+    rc_thread.start()
 
     # Main loop
     try:
@@ -86,9 +92,11 @@ def main():
             mav_comn.wait_heartbeat()
     except KeyboardInterrupt:
         video_thread.join()
-        #rc_thread.join()
+        rc_thread.join()
+        bluerov.set_lights(False)
         bluerov.disarm()
         print("Exiting...")
+
 
 if __name__ == "__main__":
     main()

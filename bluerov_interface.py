@@ -9,9 +9,10 @@ class BlueROV:
         self.mav_connection = mav_connection
         self.mav_connection.wait_heartbeat()
         self.mav_connection.set_mode("MANUAL")
-        # self.mav_connection.arducopter_arm()
-        # self.mav_connection.motors_armed_wait()
+        self.mav_connection.arducopter_arm()
+        self.mav_connection.motors_armed_wait()
         print("armed!")
+        self.set_lights(False)
         self.state = "armed"
 
     def disarm(self):
@@ -79,7 +80,7 @@ class BlueROV:
             value = np.clip(value, -100, 100)
 
         pwm_value = 1500 + value * 4
-        self.set_rc_channel(4, pwm_value)
+        self.set_rc_channel(3, pwm_value)
 
     def set_yaw_rate_power(self, value):
         """Set the yaw rate power channel"""
@@ -89,4 +90,11 @@ class BlueROV:
             value = np.clip(value, -100, 100)
 
         pwm_value = 1500 + value * 4
-        self.set_rc_channel(3, pwm_value)
+        self.set_rc_channel(4, pwm_value)
+
+    def set_lights(self, yes_or_no: bool):
+        """Set the light channel"""
+        if yes_or_no:
+            self.set_rc_channel(9, 1800)
+        else:
+            self.set_rc_channel(9, 1100)
