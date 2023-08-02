@@ -1,7 +1,6 @@
 import unittest
-import pid
-import main
 import april_tag
+import cv2
 
 class TestAprilsTags(unittest.TestCase):
 
@@ -20,5 +19,19 @@ class TestAprilsTags(unittest.TestCase):
 
     #TOBY
     def test_correct_center_multiple_tags(self):
-        self.assertAlmostEquals(april_tag.get_)
+        img = cv2.imread('test_multi.jpg', cv2.IMREAD_GRAYSCALE)
+        self.assertAlmostEquals(april_tag.process_center_avg(img)[0], 22.174)
+        self.assertAlmostEquals(april_tag.process_center_avg(img)[0], 5.336)
+
+
+    def test_position(self):
+        img = cv2.imread('testframe.jpg', cv2.IMREAD_GRAYSCALE)
+        self.assertEquals(april_tag.process_center_avg(img)[0], -10.1996)
+        self.assertNotEquals(april_tag.process_center_avg(img)[1], 5)
+
+
+img = cv2.imread('test_multi.jpg', cv2.IMREAD_GRAYSCALE)
+print(april_tag.process_center_avg(img)[1])
+
+    
 
