@@ -55,6 +55,7 @@ def _get_frame():
                 
                 # TODO: set vertical_power and lateral_power here
                 print(frame.shape)
+                # sleep(0.5)
     except KeyboardInterrupt:
         return
 
@@ -76,8 +77,8 @@ def main():
     video_thread.start()
 
     # # # Start the RC thread
-    rc_thread = Thread(target=_send_rc)
-    rc_thread.start()
+    # rc_thread = Thread(target=_send_rc)
+    # rc_thread.start()
 
     # Main loop
     try:
