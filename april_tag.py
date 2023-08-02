@@ -37,8 +37,8 @@ def get_tags(img) -> list:
 
     tags = at_detector.detect(img, True, camera_params=camera_params, tag_size=True)
 
-    if type(tags) is not None:
-        print("tag found!")
+    if len(tags) > 0:
+        print("tag(s) found!")
 
     return tags
 
@@ -99,93 +99,7 @@ def output_from_tags(
     return (horizontal_output, vertical_output)
 
 
-def draw_outputs(
-    img: np.ndarray, outputs: tuple[list[float], list[float]], tags: list
-) -> np.ndarray:
-    """Draws the outputs corresponding to each tag onto the image.
-
-    Args:
-        img (np.ndarray): the image
-        outputs (tuple[list[float], list[float]]): the list of pid output values
-        tags (list): the list of tags
-
-    Returns:
-        np.ndarray: the image with outputs drawn onto it
-    """
-    h_off_center = 25
-    space_between_tags = 50
-    v_off_center = 50
-    for i in range(len(outputs) - 1):
-        tag = tags[i]
-        horizontal = outputs[0][i]
-        vertical = outputs[1][i]
-        cv2.putText(
-            img,
-            f"Tag {tag.tag_id}",
-            org=(
-                int(img.shape[1] / 2) + h_off_center + space_between_tags * (i),
-                int(img.shape[0] / 2),
-            ),
-            fontFace=cv2.FONT_HERSHEY_TRIPLEX,
-            fontScale=1.5,
-            color=(0, 0, 255),
-        )
-        cv2.putText(
-            img,
-            f"Horizontal: {horizontal:.2f}%",
-            org=(
-                int(img.shape[1] / 2) + h_off_center + space_between_tags * (i),
-                int(img.shape[0] / 2) + v_off_center,
-            ),
-            fontFace=cv2.FONT_HERSHEY_TRIPLEX,
-            fontScale=1.5,
-            color=(0, 0, 255),
-        )
-        cv2.putText(
-            img,
-            f"Vertical: {vertical:.2f}%",
-            org=(
-                int(img.shape[1] / 2) + h_off_center + space_between_tags * (i),
-                int(img.shape[0] / 2) + 2 * v_off_center,
-            ),
-            fontFace=cv2.FONT_HERSHEY_TRIPLEX,
-            fontScale=1.5,
-            color=(0, 0, 255),
-        )
-    return img
-
-
-def draw_tags(tags: list, img: np.ndarray):
-    """Draws a list of tags into the image.
-
-    Args:
-        tags (list[tag]): the list of tags to render
-        img (_type_): the image to render tags on
-
-    Returns:
-        img: the image with tags drawn onto it
-    """
-    for tag in tags:
-        for idx in range(len(tag.corners)):
-            cv2.line(
-                img,
-                tuple(tag.corners[idx - 1, :].astype(int)),
-                tuple(tag.corners[idx, :].astype(int)),
-                (0, 255, 0),
-                thickness=10,
-            )
-        cv2.line(
-            img,
-            (int(img.shape[1] / 2), int(img.shape[0] / 2)),
-            (int(tag.center[0]), int(tag.center[1])),
-            (0, 0, 255),
-            thickness=10,
-        )
-
-    return img
-
-
-def process_frame(frame: np.ndarray, PIDHorizontal: PID, PIDVertical: PID):
+def pid_from_frame(frame: np.ndarray, PIDHorizontal: PID, PIDVertical: PID):
     """Processes a frame to find the PID power output.
 
     Args:

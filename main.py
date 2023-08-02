@@ -31,7 +31,6 @@ lateral_power = 0
 
 def _get_frame():
     global frame
-    global new_frame
     global vertical_power
     global lateral_power
     
@@ -47,7 +46,7 @@ def _get_frame():
                 # TODO: Add frame processing here
                 if type(frame) == np.ndarray:
                     try:
-                        vertical_power, lateral_power = process_frame(frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal)
+                        vertical_power, lateral_power = pid_from_frame(frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal)
                         print(f"{vertical_power = }")
                         print(f"{lateral_power = }")
                     except Exception as e:
@@ -59,12 +58,12 @@ def _get_frame():
         return
 
 
-# def _send_rc():
-#     while True:
-#         # bluerov.arm()
-#         bluerov.set_vertical_power(vertical_power)
-#         bluerov.set_lateral_power(lateral_power)
-#         sleep(0.5)
+def _send_rc():
+    while True:
+        bluerov.arm()
+        bluerov.set_vertical_power(vertical_power)
+        bluerov.set_lateral_power(lateral_power)
+        sleep(0.2)
 
 
 def main():
@@ -73,8 +72,8 @@ def main():
     video_thread.start()
 
     # # Start the RC thread
-    # rc_thread = Thread(target=_send_rc)
-    # rc_thread.start()
+    rc_thread = Thread(target=_send_rc)
+    rc_thread.start()
 
     # Main loop
     try:
@@ -82,7 +81,7 @@ def main():
             mav_comn.wait_heartbeat()
     except KeyboardInterrupt:
         video_thread.join()
-        # rc_thread.join()
+        rc_thread.join()
         bluerov.disarm()
         print("Exiting...")
 
