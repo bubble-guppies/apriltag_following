@@ -41,16 +41,18 @@ if __name__ == "__main__":
     out = cv2.VideoWriter("rendered_tags.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 30, size)
 
     count = 0 # the number of frames since the last    
-    while ret:
-        ret, frame = cap.read()
-        if not ret:
-            break
+    while cap.isOpened():
+        try:
+            ret, frame = cap.read()
 
-        print(f"now on frame {count}...")
-        tags = get_tags(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
-        img = draw_tags(tags, frame)
+            print(f"now on frame {count}...")
+            tags = get_tags(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
+            img = draw_tags(tags, frame)
 
-        out.write(frame)
+            out.write(frame)
+
+        except:
+            pass
 
         count += 1
 
