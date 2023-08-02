@@ -34,9 +34,5 @@ class TestAprilsTags(unittest.TestCase):
         self.assertEquals(april_tag.process_center_avg(img)[0], -10.1996)
         self.assertNotEquals(april_tag.process_center_avg(img)[1], 5)
 
-
-img = cv2.imread('test_multi.jpg', cv2.IMREAD_GRAYSCALE)
-print(april_tag.process_center_avg(img)[1])
-
     
 
