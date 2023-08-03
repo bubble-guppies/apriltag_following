@@ -11,11 +11,15 @@ from april_tag import *
 
 print("Main started!")
 
-# Create the video objectE
+# Create the video object
 video = Video()
+FPS = 10
+rc_sleep = 0
 # Create the PID object
-PIDVertical = PID(70, 0, -6, 100)
-PIDHorizontal = PID(50, 0, 0, 100)
+PIDVertical = PID(50, 0, -3, 100) # 70, 0, -6
+PIDHorizontal = PID(40, 0, -3, 100) # 50, 0, 0
+PIDLongitudinal = PID(20, 0, -1, 100) # ?, ?, ?
+PIDYaw = PID(0, 0, 0, 100) # ?
 # Create the mavlink connection
 mav_comn = mavutil.mavlink_connection("udpin:0.0.0.0:14550")
 # Create the BlueROV object
@@ -27,12 +31,16 @@ frame_available.set()
 
 vertical_power = 0
 lateral_power = 0
+longitudinal_power = 0
+yaw_power = 0
 
 
 def _get_frame():
     global frame
     global vertical_power
     global lateral_power
+    global longitudinal_power
+    global yaw_power
 
     while not video.frame_available():
         print("Waiting for frame...")
@@ -47,19 +55,25 @@ def _get_frame():
                 # TODO: Add frame processing here
                 if type(frame) == np.ndarray:
                     try:
-                        vertical_power, lateral_power = pid_from_frame(
-                            frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal
+                        vertical_power, lateral_power, longitudinal_power, yaw_power = pid_from_frame(
+                            frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal, PIDLongitudinal=PIDLongitudinal, PIDYaw=PIDYaw
                         )
-                        print(f"{vertical_power = }")
-                        print(f"{lateral_power = }")
+                      
+                        if longitudinal_power != 0:
+                            print(f"{longitudinal_power = }")
+                            print(f"{yaw_power = }")
+                            print(f"{vertical_power = }")
+                            print(f"{lateral_power = }")
                     except Exception as e:
                         print(f"caught: {e}")
                         vertical_power = 0
                         lateral_power = 0
+                        longitudinal_power = 0
+                        yaw_power = 0
 
                 # TODO: set vertical_power and lateral_power here
-                print(frame.shape)
-                sleep(0.1)
+                # print(frame.shape)
+                sleep(1 / FPS)
     except KeyboardInterrupt:
         return
 
@@ -68,13 +82,17 @@ def _send_rc():
     # on first startup, set everything 0
     bluerov.set_vertical_power(0)
     bluerov.set_lateral_power(0)
+    bluerov.set_yaw_rate_power(0)
+    bluerov.set_longitudinal_power(0)
 
     while True:
         bluerov.arm()
         mav_comn.set_mode(19)
         bluerov.set_vertical_power(int(vertical_power))
         bluerov.set_lateral_power(int(lateral_power))
-        # sleep(0.2)
+        bluerov.set_longitudinal_power(int(longitudinal_power))
+        bluerov.set_yaw_rate_power(int(yaw_power))
+        sleep(rc_sleep)
 
 
 def main():
