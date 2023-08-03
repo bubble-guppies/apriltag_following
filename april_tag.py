@@ -2,7 +2,7 @@ from dt_apriltags import Detector
 import numpy as np
 import cv2
 from pid import *
-import eigency
+# import eigency
 from scipy.spatial.transform import Rotation as R
 
 # Create an April Tags detector object
@@ -81,27 +81,35 @@ def error_relative_to_center(
 
 
 
-def pid_from_frame(frame: np.ndarray, PIDHorizontal: PID, PIDVertical: PID):
+def pid_from_frame(frame: np.ndarray, PIDHorizontal: PID, PIDVertical: PID, PIDLongitudinal: PID, PIDYaw: PID):
     """Processes a frame to find the PID power output.
 
     Args:
         frame (np.ndarray): the image
         PIDHorizontal (PID): the horizontal PID controller
         PIDVertical (PID): the vertical PID controller
+        PIDLongitudinal (PID): the forward/backward PID controller
+        PIDYaw (PID): the yaw PID controller
 
     Returns:
         tuple[float, float]: the vertical and horizontal PID outputs
     """
     powY = 0
     powX = 0
+    powZ = 0
+    powYaw = 0
     apriltags = get_tags(frame)
     if len(apriltags) > 0:
         meanX, meanY = process_center_avg(frame)
-
+        meanZ = get_distance_to_tag(apriltags)
+        rot = get_heading_to_tag(apriltags)
+        rotZ = rot[2]
         powY = PIDHorizontal.update(meanY)
         powX = PIDVertical.update(meanX)
+        powZ = PIDLongitudinal.update(meanZ)
+        powYaw = PIDYaw.update(rotZ)
 
-    return (powX, powY)
+    return (powX, powY, powZ, powYaw)
 
 
 def process_center_avg(frame: np.ndarray) -> tuple[float, float]:
@@ -132,8 +140,7 @@ def process_center_avg(frame: np.ndarray) -> tuple[float, float]:
     return (meanX, meanY)
 
 
-def get_heading_to_tag(frame):
-    apriltags = get_tags(frame)
+def get_heading_to_tag(apriltags: list):
     rot = apriltags[0].pose_R
     r = rotation_matrix_to_euler_angles(rot)
     return r
@@ -143,9 +150,8 @@ def rotation_matrix_to_euler_angles(rot_matrix):
     r = R.from_matrix(rot_matrix)
     return r.as_euler('xyz', degrees=False)
 
-def get_distance_to_tag(frame):
-    apriltags = get_tags(frame)
+def get_distance_to_tag(apriltags: list):
     dist = [tag.pose_t[2] for tag in apriltags]
-    print(apriltags)
+    # print(apriltags)
     meanY = np.mean(dist)
     return meanY
