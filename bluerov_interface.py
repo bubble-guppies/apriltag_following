@@ -1,5 +1,6 @@
 from pymavlink import mavutil
 import numpy as np
+import time
 
 
 class BlueROV:
@@ -13,6 +14,8 @@ class BlueROV:
         self.mav_connection.motors_armed_wait()
         print("armed!")
         self.set_lights(False)
+        # self.set_camera()
+        # self.set_rc_channels_to_neutral()
         self.state = "armed"
 
     def disarm(self):
@@ -98,3 +101,10 @@ class BlueROV:
             self.set_rc_channel(9, 1800)
         else:
             self.set_rc_channel(9, 1100)
+
+    def set_camera(self):
+        """Set the camera channel"""
+        self.set_rc_channel(8, 1900)
+        time.sleep(1)
+        self.set_rc_channel(8, 1500)
+   

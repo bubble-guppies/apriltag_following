@@ -102,8 +102,7 @@ def pid_from_frame(frame: np.ndarray, PIDHorizontal: PID, PIDVertical: PID, PIDL
     if len(apriltags) > 0:
         meanX, meanY = process_center_avg(frame)
         meanZ = get_distance_to_tag(apriltags)
-        rot = get_heading_to_tag(apriltags)
-        rotZ = rot[2]
+        rotZ = get_heading_to_tag(apriltags)
         powY = PIDHorizontal.update(meanY)
         powX = PIDVertical.update(meanX)
         powZ = PIDLongitudinal.update(meanZ)
@@ -149,10 +148,10 @@ def get_heading_to_tag(apriltags: list):
 def rotation_matrix_to_euler_angles(rot_matrix):
     r = R.from_matrix(rot_matrix)
     matrix = r.as_matrix()
-    return r.as_euler('zyx', degrees=True)[1]
+    return r.as_euler('zyx', degrees=False)[1]
 
-def get_distance_to_tag(apriltags: list):
+def get_distance_to_tag(apriltags: list, goal_distance = 1):
     dist = [tag.pose_t[2] for tag in apriltags]
     # print(apriltags)
     meanY = np.mean(dist)
-    return meanY
+    return meanY - goal_distance

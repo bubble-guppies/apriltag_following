@@ -13,13 +13,13 @@ print("Main started!")
 
 # Create the video object
 video = Video()
-FPS = 10
+FPS = 30
 rc_sleep = 0
-# Create the PID object
-PIDVertical = PID(50, 0, -3, 100) # 70, 0, -6
-PIDHorizontal = PID(40, 0, -3, 100) # 50, 0, 0
-PIDLongitudinal = PID(20, 0, -1, 100) # ?, ?, ?
-PIDYaw = PID(0, 0, 0, 100) # ?
+# Create the PID objects
+PIDVertical = PID(70, 0, -6, 100)
+PIDHorizontal = PID(35, 0.05, 0, 100)
+PIDLongitudinal = PID(30, 0, -3, 100)
+PIDYaw = PID(10, 0.0, 0, 100) # ?
 # Create the mavlink connection
 mav_comn = mavutil.mavlink_connection("udpin:0.0.0.0:14550")
 # Create the BlueROV object
@@ -58,12 +58,15 @@ def _get_frame():
                         vertical_power, lateral_power, longitudinal_power, yaw_power = pid_from_frame(
                             frame, PIDVertical=PIDVertical, PIDHorizontal=PIDHorizontal, PIDLongitudinal=PIDLongitudinal, PIDYaw=PIDYaw
                         )
-                      
-                        if longitudinal_power != 0:
-                            print(f"{longitudinal_power = }")
-                            print(f"{yaw_power = }")
-                            print(f"{vertical_power = }")
-                            print(f"{lateral_power = }")
+                        # vertical_power = 0
+                        # lateral_power = 0
+                        # longitudinal_power = 0
+                        # yaw_power = 10
+                        print(f"{longitudinal_power = }")
+                        print(f"{yaw_power = }")
+                        print(f"{vertical_power = }")
+                        print(f"{lateral_power = }")
+
                     except Exception as e:
                         print(f"caught: {e}")
                         vertical_power = 0
