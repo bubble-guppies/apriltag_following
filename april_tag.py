@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from pid import *
 import eigency
-
+from scipy.spatial.transform import Rotation as R
 
 # Create an April Tags detector object
 cameraMatrix = np.array([ 353.571428571, 0, 320, 0, 353.571428571, 180, 0, 0, 1]).reshape((3,3))
@@ -134,36 +134,14 @@ def process_center_avg(frame: np.ndarray) -> tuple[float, float]:
 
 def get_heading_to_tag(frame):
     apriltags = get_tags(frame)
-    print(apriltags)
     rot = apriltags[0].pose_R
     r = rotation_matrix_to_euler_angles(rot)
     return r
 
 
 def rotation_matrix_to_euler_angles(rot_matrix):
-    # Ensure the input is a 3x3 rotation matrix
-    if rot_matrix.shape != (3, 3):
-        raise ValueError("Input matrix must be a 3x3 rotation matrix.")
-
-    # Calculate pitch (around y-axis) and yaw (around z-axis)
-    pitch = np.arcsin(-rot_matrix[2, 0])
-    yaw = np.arctan2(rot_matrix[1, 0], rot_matrix[0, 0])
-
-    # Calculate roll (around x-axis)
-    cos_pitch = np.cos(pitch)
-    if np.abs(cos_pitch) > 1e-6:
-        roll = np.arctan2(rot_matrix[2, 1] / cos_pitch, rot_matrix[2, 2] / cos_pitch)
-    else:
-        # Gimbal lock case: cos(pitch) is close to zero
-        roll = 0.0
-
-    # Convert angles from radians to degrees
-    roll_deg = np.degrees(roll)
-    pitch_deg = np.degrees(pitch)
-    yaw_deg = np.degrees(yaw)
-    print(f"{(180/np.pi)*roll_deg, (180/np.pi)*pitch_deg, (180/np.pi)*yaw_deg}")
-    return yaw_deg
-
+    r = R.from_matrix(rot_matrix)
+    return r.as_euler('xyz', degrees=False)
 
 def get_distance_to_tag(frame):
     apriltags = get_tags(frame)
