@@ -141,7 +141,6 @@ def get_heading_to_tag(frame):
 
 def rotation_matrix_to_euler_angles(rot_matrix):
     r = R.from_matrix(rot_matrix)
-    matrix = r.as_matrix()
     return r.as_euler('zyx', degrees=True)[1]
 
 def get_distance_to_tag(frame):
