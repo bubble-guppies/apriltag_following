@@ -148,7 +148,8 @@ def get_heading_to_tag(apriltags: list):
 
 def rotation_matrix_to_euler_angles(rot_matrix):
     r = R.from_matrix(rot_matrix)
-    return r.as_euler('xyz', degrees=False)
+    matrix = r.as_matrix()
+    return r.as_euler('zyx', degrees=True)[1]
 
 def get_distance_to_tag(apriltags: list):
     dist = [tag.pose_t[2] for tag in apriltags]
