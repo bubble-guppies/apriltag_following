@@ -3,7 +3,7 @@ import numpy as np
 
 
 class PID:
-    def __init__(self, K_p=0.0, K_i=0.0, K_d=0.0, integral_limit=None):
+    def __init__(self, K_p=0.0, K_i=0.0, K_d=0.0, integral_limit=None, feed_forward =0, ffthresh = 3):
         """Constructor
         Args:
             K_p (float): The proportional gain
@@ -15,6 +15,8 @@ class PID:
         self.K_i = K_i
         self.K_d = K_d
         self.integral_limit = integral_limit
+        self.ff = feed_forward
+        self.thresh = ffthresh
 
         self.reset()
 
@@ -44,6 +46,8 @@ class PID:
             derivative = error_derivative
 
         output = self.K_p * error + self.K_i * self.integral + self.K_d * derivative
+        if self.feed_forward != 0 and abs(error) > self.thresh:
+            output += self.ff
 
         self.last_error = error
 
