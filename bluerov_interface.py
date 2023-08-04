@@ -9,7 +9,8 @@ class BlueROV:
     def __init__(self, mav_connection):
         self.mav_connection = mav_connection
         self.mav_connection.wait_heartbeat()
-        self.mav_connection.set_mode("MANUAL")
+        master_id = mav_connection.mode_mapping()["MANUAL"] # The ID for MANUAL mode control. Some of robots are weird.
+        self.mav_connection.set_mode(master_id)
         self.mav_connection.arducopter_arm()
         self.mav_connection.motors_armed_wait()
         print("armed!")
@@ -105,6 +106,6 @@ class BlueROV:
     def set_camera(self):
         """Set the camera channel"""
         self.set_rc_channel(8, 1900)
-        time.sleep(1)
+        time.sleep(0.2)
         self.set_rc_channel(8, 1500)
    
