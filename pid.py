@@ -47,7 +47,7 @@ class PID:
 
         output = self.K_p * error + self.K_i * self.integral + self.K_d * derivative
         if self.feed_forward != 0 and abs(error) > self.thresh:
-            output += self.ff
+            output += self.ff * np.sign(error)
 
         self.last_error = error
 
