@@ -16,7 +16,7 @@ video = Video()
 FPS = 30
 rc_sleep = 0
 # Create the PID objects
-PIDVertical = PID(50, 0, -6, 100, 20, 3) # values range from [-1, 1]
+PIDVertical = PID(50, 0, -6, 100, 20, 0.2) # values range from [-1, 1]
 PIDHorizontal = PID(45, 0.05, 0, 100) # values range from [-1, 1]
 PIDLongitudinal = PID(30, 0, -3, 100) # values range from [-1, 1]
 PIDYaw = PID(10, 0.0, 0, 100) # values range from [-pi, pi]
