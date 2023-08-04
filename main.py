@@ -16,12 +16,19 @@ video = Video()
 FPS = 30
 rc_sleep = 0
 # Create the PID objects
-PIDVertical = PID(70, 0, -6, 100)
-PIDHorizontal = PID(35, 0.05, 0, 100)
-PIDLongitudinal = PID(30, 0, -3, 100)
-PIDYaw = PID(10, 0.0, 0, 100) # ?
+PIDVertical = PID(50, 0, -6, 100) # values range from [-1, 1]
+PIDHorizontal = PID(45, 0.05, 0, 100) # values range from [-1, 1]
+PIDLongitudinal = PID(30, 0, -3, 100) # values range from [-1, 1]
+PIDYaw = PID(10, 0.0, 0, 100) # values range from [-pi, pi]
+# PIDVertical = PID(70, 0, -6, 100)
+# PIDHorizontal = PID(0, 0.00, 0, 100)
+# PIDLongitudinal = PID(0, 0, 0, 100)
+# PIDYaw = PID(0, 0.0, 0, 0)
+
 # Create the mavlink connection
 mav_comn = mavutil.mavlink_connection("udpin:0.0.0.0:14550")
+master_id = mav_comn.mode_mapping()["MANUAL"] # The ID for MANUAL mode control. Some of robots are weird.
+
 # Create the BlueROV object
 bluerov = BlueROV(mav_connection=mav_comn)
 
@@ -52,7 +59,6 @@ def _get_frame():
                 frame = video.frame()
                 #cv2.imwrite("camera_stream.jpg", frame)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                # TODO: Add frame processing here
                 if type(frame) == np.ndarray:
                     try:
                         vertical_power, lateral_power, longitudinal_power, yaw_power = pid_from_frame(
@@ -62,6 +68,7 @@ def _get_frame():
                         # lateral_power = 0
                         # longitudinal_power = 0
                         # yaw_power = 10
+                        # vertical_power *= -1
                         print(f"{longitudinal_power = }")
                         print(f"{yaw_power = }")
                         print(f"{vertical_power = }")
@@ -90,7 +97,7 @@ def _send_rc():
 
     while True:
         bluerov.arm()
-        mav_comn.set_mode(19)
+        mav_comn.set_mode(master_id) # make sure the robot is in the right mode
         bluerov.set_vertical_power(int(vertical_power))
         bluerov.set_lateral_power(int(lateral_power))
         bluerov.set_longitudinal_power(int(longitudinal_power))
